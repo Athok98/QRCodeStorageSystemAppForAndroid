@@ -21,6 +21,7 @@ import com.google.zxing.integration.android.IntentResult;
 import java.io.ByteArrayOutputStream;
 
 
+
 public class MainActivity extends AppCompatActivity{
 
     TextView textView;
