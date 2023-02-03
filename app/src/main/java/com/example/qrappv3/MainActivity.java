@@ -2,9 +2,14 @@ package com.example.qrappv3;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -13,16 +18,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.io.ByteArrayOutputStream;
 
 
 public class MainActivity extends AppCompatActivity{
 
+    TextView textView;
+    EditText editText;
     Button scanBtn;
     Button addBoxBtn;
     Button removeBoxBtn;
     Button addItemBtn;
     Button removeItemBtn;
     Button returnMainBtn;
+
+    Button addItemActivityBtn;
+
+    MyDataBase DB;
+    ImageView imageView;
+    String nameDB;
+    Bitmap imageDB;
+
 
 
 
@@ -35,6 +51,8 @@ public class MainActivity extends AppCompatActivity{
         buttonRemoveBox();
         buttonAddItem();
         buttonRemoveItem();
+
+        DB = new MyDataBase(this);
     }
 
     public void buttonScan(){
@@ -101,8 +119,41 @@ public class MainActivity extends AppCompatActivity{
         buttonRemoveItem();
     }
 
+    public void AddItemActivityBtn(){
+        addItemActivityBtn = findViewById(R.id.AddItemActivityBtn);
+        addItemActivityBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                textView = (TextView) findViewById(R.id.textview);
+                editText = (EditText) findViewById(R.id.editText);
+                imageView = (ImageView) findViewById(R.id.image);
+
+                String name = editText.getText().toString();
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.draw);
+                ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArray);
+                byte[] img = byteArray.toByteArray();
+
+                boolean insert = DB.insertdata(name, img);
+                if(insert==true){
+                    Toast.makeText(MainActivity.this, "DataSaved", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Data Not Saved", Toast.LENGTH_SHORT).show();
+                }
+
+                imageDB = DB.getImage(name);
+                nameDB = DB.getName(name);
+
+                imageView.setImageBitmap(imageDB);
+
+            }
+        });
+    }
+
     private void addBox(){
         setContentView(R.layout.add_box);
+
         buttonReturnToMain();
     }
 
@@ -112,7 +163,9 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void addItem(){
+
         setContentView(R.layout.add_item);
+        AddItemActivityBtn();
         buttonReturnToMain();
     }
     private void removeItem(){
