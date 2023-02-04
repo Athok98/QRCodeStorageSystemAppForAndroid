@@ -13,7 +13,7 @@
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enteer item name"
+        android:text="Enter item name"
         android:textSize="30sp"/>
 
     <EditText
@@ -26,16 +26,25 @@
         />
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/imageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="175sp"
         android:layout_centerHorizontal="true"/>
 
     <Button
-        android:id="@+id/AddItemActivityBtn"
+        android:id="@+id/takePictureBtn"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="400sp"
+        android:layout_width="350sp"
+        android:layout_height="wrap_content"
+        android:text="Take Picture"
+        android:textSize="40sp"/>
+
+    <Button
+        android:id="@+id/AddItemActivityBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="480sp"
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:text="Add Item"

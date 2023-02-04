@@ -6,10 +6,56 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textViewAddBox"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50sp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter box name"
+        android:textSize="30sp"/>
+
+    <EditText
+        android:id="@+id/editTextAddBox"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100sp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <Button
+        android:id="@+id/scanBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150sp"
+        android:layout_width="350sp"
+        android:layout_height="wrap_content"
+        android:text="Scan Code"
+        android:textSize="40sp"/>
+
+    <TextView
+        android:id="@+id/textViewQRCode"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="250sp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"/>
+
+    <Button
+        android:id="@+id/addBoxBtnInternal"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="330sp"
+        android:layout_width="350sp"
+        android:layout_height="wrap_content"
+        android:text="Add Box"
+        android:textSize="40sp"/>
+
     <Button
         android:id="@+id/returnMainBtn"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150sp"
+        android:layout_marginTop="550sp"
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:text="return"
