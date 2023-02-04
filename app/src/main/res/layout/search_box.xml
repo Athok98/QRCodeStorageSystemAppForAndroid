@@ -7,50 +7,39 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/textViewAddBox"
+        android:id="@+id/textFoundBox"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50sp"
+        android:layout_marginTop="20sp"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter box name"
+        android:text=""
         android:textSize="30sp"/>
-
-    <EditText
-        android:id="@+id/editTextAddBox"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100sp"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
-    <Button
-        android:id="@+id/scanCodeBox"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150sp"
-        android:layout_width="350sp"
-        android:layout_height="wrap_content"
-        android:text="Scan Code"
-        android:textSize="40sp"/>
 
     <TextView
-        android:id="@+id/textViewQRCode"
+        android:id="@+id/textViewSearch"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="250sp"
-
+        android:layout_below="@id/textFoundBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Found items:"
         android:textSize="30sp"/>
 
-    <Button
-        android:id="@+id/addBoxBtnInternal"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="330sp"
-        android:layout_width="350sp"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_below="@id/textViewSearch"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="20sp"
+        android:layout_height="200dp"
+        android:scaleType="fitXY" />
+
+    <Gallery
+        android:id="@+id/simpleGallery"
+        android:layout_below="@id/imageView"
+        android:layout_marginTop="20sp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Add Box"
-        android:textSize="40sp"/>
+        />
 
     <Button
         android:id="@+id/returnMainBtn"
@@ -60,6 +49,5 @@
         android:layout_height="wrap_content"
         android:text="return"
         android:textSize="40sp"/>
-
 
 </RelativeLayout>

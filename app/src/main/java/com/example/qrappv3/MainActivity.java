@@ -35,17 +35,19 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_CODE = 1234;
     private static final int CAPTURE_CODE = 1001;
-    private int cameraMode = 0; //mode that a camera is on: 0-beginning; 1-scan code; 2-take picture;
-    TextView textView, textViewQRCode;
+    private int cameraMode = 0; //mode that a camera is on: 0-beginning; 1-scan code; 2-take picture; 3 - scan box
+    private boolean ifSearchBoxFlag = false;
+    TextView textView, textViewQRCode, textFoundBox;
 
-    EditText editText;
-    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn;
-    MyDataBase DB;
+    EditText editText, editTextAddBox;
+    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn, addBoxBtnInternal, scanCodeBoxBtn;
+    MyDataBase DB = new MyDataBase(this);
+
     ImageView imageView;
-    String nameDB;
+    String nameDB, qr_id;
     Bitmap imageDB;
 
-    boolean resultPhotoDone = true, ifAddBox;
+    boolean ifAddBox, ifAddItem;
     String scanQrResult = "Your QR code";
 
     Uri image_uri;
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ifAddBox = false;
+        ifAddItem = false;
+        ifSearchBoxFlag = false;
         setContentView(R.layout.activity_main);
         buttonScan();
         buttonAddBox();
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         buttonAddItem();
         buttonRemoveItem();
 
-        DB = new MyDataBase(this);
+        //DB = new MyDataBase(this);
     }
 
     public void buttonScan() {
@@ -70,8 +74,7 @@ public class MainActivity extends AppCompatActivity {
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                scanCode();
-                textViewQRCode.setText(scanQrResult);
+            searchBox();
             }
         });
     }
@@ -106,6 +109,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void scanCodeBoxBtn() {
+        scanCodeBoxBtn = findViewById(R.id.scanCodeBox);
+        scanCodeBoxBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                scanCode();
+            }
+        });
+    }
+
     public void buttonRemoveItem() {
         removeItemBtn = findViewById(R.id.removeItemBtn);
         removeItemBtn.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
     public void returnToMain() {
         cameraMode = 0;
         ifAddBox = false;
+        ifAddItem = false;
+        ifSearchBoxFlag = false;
         setContentView(R.layout.activity_main);
         buttonScan();
         buttonAddBox();
@@ -155,6 +170,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void addBoxActivityBtn(){
+        editTextAddBox = (EditText) findViewById(R.id.editTextAddBox);
+        addBoxBtnInternal = findViewById(R.id.addBoxBtnInternal);
+        addBoxBtnInternal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String editText = editTextAddBox.getText().toString();
+                String qrText = textViewQRCode.getText().toString();
+
+                boolean insert = DB.insertDataBox(editText, qrText);
+                if (insert == true) {
+                    Toast.makeText(MainActivity.this, "Data Saved", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Not Saved", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+    }
     public void addItemActivityBtn() {
         addItemActivityBtn = findViewById(R.id.AddItemActivityBtn);
         addItemActivityBtn.setOnClickListener(new View.OnClickListener() {
@@ -173,41 +209,56 @@ public class MainActivity extends AppCompatActivity {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArray);
                 byte[] img = byteArray.toByteArray();
 
-                boolean insert = DB.insertdata(name, img);
+                boolean insert = DB.insertdata(name, img, qr_id);
 
                 if (insert == true) {
                     Toast.makeText(MainActivity.this, "DataSaved", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Data Not Saved", Toast.LENGTH_SHORT).show();
                 }
-                imageDB = DB.getImage(name);
-                nameDB = DB.getName(name);
+                imageDB = DB.getImage(qr_id);
+                nameDB = DB.getName(qr_id);
                 imageView.setImageBitmap(imageDB);
             }
         });
     }
+    private void searchBox() {
+        ifAddBox= false;
+        ifSearchBoxFlag = true;
+        cameraMode = 3;
 
+        setContentView(R.layout.search_box);
+        textFoundBox = (TextView) findViewById(R.id.textFoundBox);
+        scanCode();
+        buttonReturnToMain();
+
+    }
+    private void setTextViewQRCode(){
+        textViewQRCode = (TextView) findViewById(R.id.textViewQRCode);
+        textViewQRCode.setText(scanQrResult);
+    }
     private void addBox() {
         ifAddBox = true;
         cameraMode = 1;
         scanQrResult = "You QR code";
 
         setContentView(R.layout.add_box);
-        textViewQRCode = (TextView) findViewById(R.id.textViewQRCode);
-        textViewQRCode.setText(scanQrResult);
-        buttonScan();
-        buttonReturnToMain();
-    }
 
+        addBoxActivityBtn();
+        scanCodeBoxBtn();
+        buttonReturnToMain();
+        setTextViewQRCode();
+    }
     private void removeBox() {
         setContentView(R.layout.remove_box);
         buttonReturnToMain();
     }
-
     private void addItem() {
         cameraMode = 2;
+        ifAddItem = true;
 
         setContentView(R.layout.add_item);
+        scanCode();
         addItemActivityBtn();
         buttonTakePicture();
         buttonReturnToMain();
@@ -261,12 +312,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && cameraMode == 2) {
             imageView.setImageURI(image_uri);
-            resultPhotoDone = true;
         }
-        if (cameraMode == 1){
+        if (cameraMode == 1 || cameraMode == 3) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if(result != null){
-                if(result.getContents() != null){
+            if (result != null) {
+                if (result.getContents() != null) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setMessage(result.getContents());
                     builder.setTitle("Scanning result:");
@@ -283,8 +333,14 @@ public class MainActivity extends AppCompatActivity {
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
-                    if(ifAddBox ==true){
+                    if (ifAddBox == true) {
                         textViewQRCode.setText(result.getContents().toString());
+                    }
+                    if (ifAddItem == true) {
+                        qr_id = result.getContents().toString();
+                    }
+                    if (ifSearchBoxFlag == true) {
+                        textFoundBox.setText(result.getContents().toString());
                     }
                 } else {
                     Toast.makeText(this, "No results", Toast.LENGTH_SHORT).show();
