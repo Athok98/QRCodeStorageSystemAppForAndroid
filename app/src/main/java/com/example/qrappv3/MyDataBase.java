@@ -39,7 +39,7 @@ public class MyDataBase extends SQLiteOpenHelper {
     }
     public String getName(String name){
         SQLiteDatabase MyDB = this.getWritableDatabase();
-        Cursor cursor = MyDB.rawQuery("Select * from tableimage where name = ?", new String[]{name});
+        Cursor cursor = MyDB.rawQuery("Select * from tableimage where qr_id = ?", new String[]{name});
         cursor.moveToFirst();
         return cursor.getString(0);
 
@@ -47,7 +47,7 @@ public class MyDataBase extends SQLiteOpenHelper {
 
     public Bitmap getImage(String name){
         SQLiteDatabase MyDB = this.getWritableDatabase();
-        Cursor cursor = MyDB.rawQuery("Select * from tableimage where name = ?", new String[]{name});
+        Cursor cursor = MyDB.rawQuery("Select * from tableimage where qr_id = ?", new String[]{name});
         cursor.moveToFirst();
         byte[] bitmap = cursor.getBlob(1);
         Bitmap image = BitmapFactory.decodeByteArray(bitmap, 0, bitmap.length);

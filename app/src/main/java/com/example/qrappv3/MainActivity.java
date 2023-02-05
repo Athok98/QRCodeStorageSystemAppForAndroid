@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView, textViewQRCode, textFoundBox;
 
     EditText editText, editTextAddBox;
-    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn, addBoxBtnInternal, scanCodeBoxBtn;
+    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn, addBoxBtnInternal, scanCodeBoxBtn, previousImageBtn, nextImageBtn;
     MyDataBase DB = new MyDataBase(this);
 
     ImageView imageView;
@@ -85,6 +85,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addBox();
+            }
+        });
+    }
+
+    public void previousImageBtn() {
+        previousImageBtn = findViewById(R.id.previousImageBtn);
+        previousImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageView = (ImageView) findViewById(R.id.imageView);
+                imageView.buildDrawingCache();
+                imageDB = DB.getImage(qr_id);
+                imageView.setImageBitmap(imageDB);
+            }
+        });
+    }
+
+    public void nextImageBtn() {
+        nextImageBtn = findViewById(R.id.nextImageBtn);
+        nextImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
     }
@@ -155,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
         takePictureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                cameraMode = 2;
+
                 imageView = (ImageView) findViewById(R.id.imageView);
                 //addItemActivityBtn = Button <-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -229,9 +254,11 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.search_box);
         textFoundBox = (TextView) findViewById(R.id.textFoundBox);
-        scanCode();
-        buttonReturnToMain();
 
+
+        scanCode();
+        previousImageBtn();
+        nextImageBtn();
     }
     private void setTextViewQRCode(){
         textViewQRCode = (TextView) findViewById(R.id.textViewQRCode);
@@ -254,11 +281,11 @@ public class MainActivity extends AppCompatActivity {
         buttonReturnToMain();
     }
     private void addItem() {
-        cameraMode = 2;
         ifAddItem = true;
 
         setContentView(R.layout.add_item);
         scanCode();
+
         addItemActivityBtn();
         buttonTakePicture();
         buttonReturnToMain();
@@ -341,6 +368,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (ifSearchBoxFlag == true) {
                         textFoundBox.setText(result.getContents().toString());
+                        qr_id = result.getContents().toString();
                     }
                 } else {
                     Toast.makeText(this, "No results", Toast.LENGTH_SHORT).show();

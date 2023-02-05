@@ -33,13 +33,27 @@
         android:layout_height="200dp"
         android:scaleType="fitXY" />
 
-    <Gallery
-        android:id="@+id/simpleGallery"
+    <Button
+        android:id="@+id/previousImageBtn"
         android:layout_below="@id/imageView"
-        android:layout_marginTop="20sp"
-        android:layout_width="fill_parent"
+        android:layout_width="160sp"
         android:layout_height="wrap_content"
-        />
+        android:layout_marginTop="150sp"
+        android:layout_marginLeft="30sp"
+        android:text="Prev"
+        android:textSize="40sp"/>
+
+    <Button
+        android:id="@+id/nextImageBtn"
+        android:layout_below="@id/imageView"
+        android:layout_marginTop="150sp"
+
+        android:layout_marginLeft="220sp"
+        android:layout_width="160sp"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:textSize="40sp"/>
+
 
     <Button
         android:id="@+id/returnMainBtn"
