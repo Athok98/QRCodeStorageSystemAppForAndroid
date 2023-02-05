@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
@@ -39,18 +41,20 @@ public class MainActivity extends AppCompatActivity {
     private boolean ifSearchBoxFlag = false;
     TextView textView, textViewQRCode, textFoundBox;
 
-    EditText editText, editTextAddBox;
-    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn, addBoxBtnInternal, scanCodeBoxBtn, previousImageBtn, nextImageBtn;
+    EditText editText, editTextAddBox,removeItemText;
+    Button scanBtn, addBoxBtn, removeBoxBtn, addItemBtn, removeItemBtn,deleteItemBtn, returnMainBtn, addItemActivityBtn, takePictureBtn, addBoxBtnInternal, scanCodeBoxBtn, previousImageBtn, nextImageBtn, deleteBoxBtn;
     MyDataBase DB = new MyDataBase(this);
+    int imageLocation;
 
     ImageView imageView;
-    String nameDB, qr_id;
+    String nameDB, qr_id ="0";
     Bitmap imageDB;
 
     boolean ifAddBox, ifAddItem;
     String scanQrResult = "Your QR code";
 
     Uri image_uri;
+
 
 
     @Override
@@ -88,16 +92,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    public void deleteBoxBtn() {
+        deleteBoxBtn = findViewById(R.id.deleteBoxBtn);
+        deleteBoxBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (DB.removeBox(qr_id) == true) {
+                    Toast.makeText(MainActivity.this, "DataDeleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Not Deleted", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
     public void previousImageBtn() {
         previousImageBtn = findViewById(R.id.previousImageBtn);
         previousImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                imageView = (ImageView) findViewById(R.id.imageView);
                 imageView.buildDrawingCache();
-                imageDB = DB.getImage(qr_id);
-                imageView.setImageBitmap(imageDB);
+                if(imageLocation>=1){
+                    imageLocation--;
+                    imageView.setImageURI(Uri.parse(DB.getUris(qr_id)[imageLocation]));
+                }
+
             }
         });
     }
@@ -107,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
         nextImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(imageLocation<DB.getNumberUri(qr_id)-1){
+                    imageLocation++;
+                    imageView.setImageURI(Uri.parse(DB.getUris(qr_id)[imageLocation]));
+                }
 
             }
         });
@@ -151,7 +175,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    public void buttonDeleteItem() {
+        deleteItemBtn = findViewById(R.id.deleteItemBtn);
+        deleteItemBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (DB.removeBox(removeItemText.getText().toString()) == true) {
+                    Toast.makeText(MainActivity.this, "DataDeleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Data Not Deleted", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
     public void buttonReturnToMain() {
         returnMainBtn = findViewById(R.id.returnMainBtn);
         returnMainBtn.setOnClickListener(new View.OnClickListener() {
@@ -229,12 +265,14 @@ public class MainActivity extends AppCompatActivity {
 
                 String name = editText.getText().toString();
                 imageView.buildDrawingCache();
-                Bitmap bitmap = imageView.getDrawingCache(); //BitmapFactory.decodeResource(getResources(), R.drawable.draw);
+                Bitmap bitmap = imageView.getDrawingCache();
+                //BitmapFactory.decodeResource(getResources(), R.drawable.draw);
+                //BitmapFactory.decodeResource(getResources(), bitmap);
                 ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArray);
                 byte[] img = byteArray.toByteArray();
 
-                boolean insert = DB.insertdata(name, img, qr_id);
+                boolean insert = DB.insertdata(name, img, qr_id, image_uri.toString());
 
                 if (insert == true) {
                     Toast.makeText(MainActivity.this, "DataSaved", Toast.LENGTH_SHORT).show();
@@ -243,22 +281,28 @@ public class MainActivity extends AppCompatActivity {
                 }
                 imageDB = DB.getImage(qr_id);
                 nameDB = DB.getName(qr_id);
-                imageView.setImageBitmap(imageDB);
             }
         });
     }
     private void searchBox() {
-        ifAddBox= false;
+        ifAddBox = false;
         ifSearchBoxFlag = true;
         cameraMode = 3;
+        String[] tabImage;
+        imageLocation = 0;
 
         setContentView(R.layout.search_box);
         textFoundBox = (TextView) findViewById(R.id.textFoundBox);
-
-
+        imageView = (ImageView) findViewById(R.id.imageView);
         scanCode();
-        previousImageBtn();
-        nextImageBtn();
+        if (DB.checkIfBoxExiste(qr_id) == true){
+            imageDB = DB.getImage(qr_id);
+            imageView.setImageURI(Uri.parse(DB.getUris(qr_id)[imageLocation]));
+            previousImageBtn();
+            nextImageBtn();
+        }
+
+        buttonReturnToMain();
     }
     private void setTextViewQRCode(){
         textViewQRCode = (TextView) findViewById(R.id.textViewQRCode);
@@ -277,7 +321,13 @@ public class MainActivity extends AppCompatActivity {
         setTextViewQRCode();
     }
     private void removeBox() {
+        ifAddBox= false;
+        ifSearchBoxFlag = true;
+        cameraMode = 3;
         setContentView(R.layout.remove_box);
+        textFoundBox = (TextView) findViewById(R.id.textFoundBox);
+        scanCode();
+        deleteBoxBtn();
         buttonReturnToMain();
     }
     private void addItem() {
@@ -291,8 +341,11 @@ public class MainActivity extends AppCompatActivity {
         buttonReturnToMain();
     }
 
+
     private void removeItem() {
         setContentView(R.layout.remove_item);
+        removeItemText =findViewById(R.id.removeItemText);
+        buttonDeleteItem();
         buttonReturnToMain();
     }
 
@@ -303,8 +356,9 @@ public class MainActivity extends AppCompatActivity {
         integrator.setCaptureActivity(CaptureAct.class);
         integrator.setOrientationLocked(false);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt("Scanning code");
         integrator.setCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
+
+        integrator.setPrompt("Scanning code");
         integrator.initiateScan();
     }
 
@@ -366,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
                     if (ifAddItem == true) {
                         qr_id = result.getContents().toString();
                     }
-                    if (ifSearchBoxFlag == true) {
+                    if (ifSearchBoxFlag == true && DB.checkIfBoxExiste(qr_id)==true) {
                         textFoundBox.setText(result.getContents().toString());
                         qr_id = result.getContents().toString();
                     }
